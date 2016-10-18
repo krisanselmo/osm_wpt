@@ -7,9 +7,12 @@ When upload the new gpx, new POI are available:
 ![image1](https://cloud.githubusercontent.com/assets/1937089/19481195/6f72bb56-954d-11e6-8c2b-59dcf30ff800.png)
 
 
-### Installation and Usage
+### Prerequisites
 ```bash
 pip install gpxpy
 pip install overpass
 ```
+[**gpxpy**](https://github.com/tkrajina/gpxpy) 
+
+[**overpass**](https://github.com/mvexel/overpass-api-python-wrapper)
 
