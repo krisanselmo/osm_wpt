@@ -1,2 +1,8 @@
-# osm_wpt
-Add OSM waypoints on a GPX route
+# OSM waypoints
+Add OpenStreetMap waypoints on a GPX route
+
+### Installation and Usage
+```bash
+pip install gpxpy
+pip install overpass
+```
