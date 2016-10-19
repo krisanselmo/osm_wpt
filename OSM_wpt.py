@@ -6,14 +6,17 @@ Created on Mon Oct 17 15:28:58 2016
 
 
 TODO: 
-
+    - Add the possibility to query ways in addition of nodes
+    - Insert new point close to the WPT on the WPT
 
 """
 
-import gpxpy
-#https://github.com/tkrajina/gpxpy
-import matplotlib.pyplot as plt
-import overpass
+import gpxpy      #https://github.com/tkrajina/gpxpy
+import overpass   #https://github.com/mvexel/overpass-api-python-wrapper
+try:
+    import matplotlib.pyplot as plt
+except ImportError:
+    pass
 import xml.etree.cElementTree as ET
 import time
 from math import radians, cos, sin, asin, sqrt
@@ -138,6 +141,7 @@ def haversine(lon1, lat1, lon2, lat2):
     """
     Calculate the great circle distance between two points 
     on the earth (specified in decimal degrees)
+    From : http://stackoverflow.com/a/4913653
     """
     # convert decimal degrees to radians 
     lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
@@ -211,12 +215,11 @@ def Create_gpx(gpx_data,Pts):
 if __name__ == "__main__":
 
     fpath = 'test.gpx'
-
+    
     gpx_file = open(fpath, 'r')
     gpx = gpxpy.parse(gpx_file)
     (gpx_name,lat,lon,ele) = Parse_route(gpx)
     gpx_file.close()
-    
     
     index_used = []
     Pts = []
@@ -224,7 +227,7 @@ if __name__ == "__main__":
     query = '"natural" = "saddle"'
     Overpass_Query(lon, lat, query)
     Pts = Get_Overpass_Feature(Pts,index_used,lat,lon, 'saddle')
-#     
+ 
     query = '"natural" = "peak"'
     Overpass_Query(lon, lat, query)
     Pts = Get_Overpass_Feature(Pts,index_used,lat,lon, 'peak')
@@ -256,15 +259,15 @@ if __name__ == "__main__":
 
     plot_gpx = 0
     if (plot_gpx == 1):
-        plot_gpx_route(lon,lat,gpx_name)
-        Plot_gpx_wpt(gpx)   # Plot les waypoints déjà présent en rouge
+        plot_gpx_route(lon,lat,gpx_name)   # Plot route 
+        Plot_gpx_wpt(gpx)                  # Plot waypoints from the input gpx
         for Pt in Pts:
-            plt.plot(Pt.lon, Pt.lat, 'bo')
+            plt.plot(Pt.lon, Pt.lat, 'bo') # Plot new waypoints
         plt.show()
     
     
-    print "Number of gpx point in route : " + str(len(lat))
-    print str(len(index_used)) + ' POI'
+    print 'Number of gpx points in route : ' + str(len(lat))
+    print str(len(index_used)) + ' Waypoint(s)'
     Create_gpx(gpx,Pts)
 
     
