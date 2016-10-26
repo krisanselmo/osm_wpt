@@ -6,9 +6,8 @@ Created on Mon Oct 17 15:28:58 2016
 
 
 TODO: 
-    - Add the possibility to query ways in addition of nodes
+    - Add the possibility to query ways with overpass
     - Keep old WPT (partially functional)
-    - (Issue) Insert new point close to the WPT on the WPT
     
 """
 
