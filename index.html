@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Osm wpt : Add OSM waypoints on a GPX route">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Osm wpt</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/krisanselmo/osm_wpt">View on GitHub</a>
+
+          <h1 id="project_title">Osm wpt</h1>
+          <h2 id="project_tagline">Add OSM waypoints on a GPX route</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/krisanselmo/osm_wpt/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/krisanselmo/osm_wpt/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a id="add-osm-waypoints-on-gpx" class="anchor" href="#add-osm-waypoints-on-gpx" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Add OSM waypoints on gpx</h1>
+
+<p><a href="https://github.com/krisanselmo/osm_wpt/blob/master/LICENSE"><img src="https://img.shields.io/pypi/l/osmapi.svg" alt="License"></a></p>
+
+<p>This script aims at automatically adding waypoints (WPT) on a GPX route. These waypoints are particularly useful when you follow a route on your GPS to know or remind you the points you pass. It can be for example, the name of a mountain pass, the name of a peak or the position of a source of drinking water, etc.</p>
+
+<p>Here is a standard gpx file cointaining only the route to follow:
+<img src="https://cloud.githubusercontent.com/assets/1937089/19481162/56d2f34a-954d-11e6-8f64-9121a9b0be76.png" alt="image1"></p>
+
+<p>After processing, new interesting waypoints are automatically added on the gpx route.
+<img src="https://cloud.githubusercontent.com/assets/1937089/19481195/6f72bb56-954d-11e6-8c2b-59dcf30ff800.png" alt="image1"></p>
+
+<h3>
+<a id="prerequisites" class="anchor" href="#prerequisites" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Prerequisites</h3>
+
+<p><a href="https://github.com/tkrajina/gpxpy"><strong>gpxpy</strong></a> </p>
+
+<div class="highlight highlight-source-shell"><pre>pip install gpxpy</pre></div>
+
+<p><a href="https://github.com/mvexel/overpass-api-python-wrapper"><strong>overpass</strong></a></p>
+
+<div class="highlight highlight-source-shell"><pre>pip install overpass</pre></div>
+
+<p><a href="https://github.com/metaodi/osmapi"><strong>osmapi</strong></a></p>
+
+<div class="highlight highlight-source-shell"><pre>pip install osmapi</pre></div>
+
+<h3>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h3>
+
+<div class="highlight highlight-source-shell"><pre>osm_wpt_on_gpx.py inputfile.gpx outputfile.gpx</pre></div>
+
+<h3>
+<a id="tips-for-use-with-suunto--garmin" class="anchor" href="#tips-for-use-with-suunto--garmin" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Tips for use with Suunto / Garmin</h3>
+
+<p>For Suunto users the outputed gpx can be imported on movescount <a href="http://www.movescount.com/map"><strong>map</strong></a>. Note that unfortunately the waypoint types are not recognized by movescount. </p>
+
+<p>For Garmin users and in particular with the Fēnix 3 watch, the gpx file can be transfered on the directory: <strong>Garmin/NewFiles/</strong>. For others watches or more details on the file transfert, I recommand to read <a href="http://www.scarletfire.co.uk/transfer-gpx-file-to-garmin/"><strong>this</strong></a>.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Osm wpt maintained by <a href="https://github.com/krisanselmo">krisanselmo</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
