@@ -92,12 +92,12 @@ def uniquify(lat, lon, ele):
 
     precision = 6
     for i in range(len(lat)):
-        la = round(lat[i], precision)
-        lo = round(lon[i], precision)
-        str1 = str(la)+str(lo)
+        lat_approx = round(lat[i], precision)
+        lon_approx = round(lon[i], precision)
+        str1 = str(lat_approx) + str(lon_approx)
         if str1 not in str2:
-            lat2.append(la)
-            lon2.append(lo)
+            lat2.append(lat_approx)
+            lon2.append(lon_approx)
             ele2.append(ele[i])
             str2.append(str1)
     print len(lat2)
@@ -183,15 +183,13 @@ def get_overpass_way_feature(Pts, index_used, lat, lon, lim_dist, query_name):
                 name = tag.attrib['v']
 
         way_id = way.get('id')
-
-        nodes = api.WayGet(way_id)
-
+        nodes_id = api.WayGet(way_id)
+        nodes = api.NodesGet(nodes_id['nd'])
         lat2 = []
         lon2 = []
-        for node_id in nodes['nd']:
-            N = api.NodeGet(node_id)
-            lat2.append(N['lat'])
-            lon2.append(N['lon'])
+        for node_id in nodes:
+            lat2.append(nodes[node_id]['lat'])
+            lon2.append(nodes[node_id]['lon'])
         (match, near_lon, near_lat, index) = find_nearest_way(lon, lat, lon2, lat2, lim_dist)
 
         if match == 1:
@@ -337,7 +335,7 @@ def overpass_query(lon, lat, query):
             is_replied = 1
         except Exception, e:
             print e
-			# raise ValueError("Overpass ne repond pas")
+            # raise ValueError("Overpass ne repond pas")
             i = i +1
             time.sleep(5)
             # print 'MultipleRequestsError'
@@ -459,12 +457,12 @@ def osm_wpt(fpath, plot_gpx=False, lim_dist=0.05, keep_old_wpt=False, gpxoutputn
 
 
 if __name__ == "__main__":
-    fpath_out = 'out.gpx'  
+    fpath_out = 'out.gpx'
     if len(sys.argv) > 1:
         fpath = sys.argv[1]
         if len(sys.argv) > 2:
             fpath_out = sys.argv[2]
     else:
         fpath = u'test.gpx'
-        
+
     osm_wpt(fpath, plot_gpx=0, gpxoutputname=fpath_out)
