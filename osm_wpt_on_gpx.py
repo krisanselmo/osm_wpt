@@ -9,6 +9,9 @@ TODO:
     - Add the possibility to query ways with overpass
             |--> Fix double wpt
     - Keep old WPT (partially functional)
+    - Add x kilometers before ending
+        Last 2 km
+        Last km
 
 """
 
@@ -49,7 +52,7 @@ class point(object):
                      self.query_name, self.name, self.lat, self.lon, self.ele))
 
 
-def parse_route(gpx, reverse=False, simplify=False):
+def parse_route(gpx, simplify=False):
     lat = []
     lon = []
     ele = []
@@ -71,10 +74,6 @@ def parse_route(gpx, reverse=False, simplify=False):
     if simplify is True:
         lat, lon, ele = uniquify(lat, lon, ele)
 
-    if reverse is True:
-        lat = lat[::-1]
-        lon = lon[::-1]
-        ele = ele[::-1]
     gpx_name = track.name
     return(gpx_name, lat, lon, ele)
 
@@ -104,7 +103,9 @@ def uniquify(lat, lon, ele):
     return lat2, lon2, ele2
 
 
-def plot_gpx_wpt(gpx):
+def plot_gpx_wpt(gpx, keep_old_wpt):
+    if keep_old_wpt is False:
+        return
     for waypoint in gpx.waypoints:
         lon = waypoint.longitude
         lat = waypoint.latitude
@@ -138,7 +139,7 @@ def get_overpass_feature(Pts, index_used, lat, lon, lim_dist, query_name):
     tree = ET.parse("Overpass.xml")
     root = tree.getroot()
     allnodes = root.findall('node')
-    i_name = 1
+    i_name = 0
 
     for node in allnodes:
         lat2 = float(node.get('lat'))
@@ -148,24 +149,27 @@ def get_overpass_feature(Pts, index_used, lat, lon, lim_dist, query_name):
         (match, near_lon, near_lat, index) = find_nearest(lon, lat, lon2, lat2, lim_dist)
 
         if match == 1:
-
+            i_name = i_name + 1
             [lon_new, lat_new, new_gpx_index] = add_new_point(lon, lat, lon2, lat2, index)
-            name = query_name + str(i_name) # set default in case proper tag not found
+            name = query_name + str(i_name) # set by default in case proper tag not found
             ele = '' # set default in case proper tag not found
 
             for tag in node.findall('tag'):
                 if tag.attrib['k'] == 'name':
                     name = tag.attrib['v']
+                    i_name -= 1
                 if tag.attrib['k'] == 'ele':
                     ele = tag.attrib['v']
 
             # Because only 1 POI is possible per GPS point
+
             if index not in index_used:
                 print query_name + " - " + name + " - " + ele
                 Pt = point(name, lon_new, lat_new, ele, node_id, index, new_gpx_index, query_name)
                 Pts.append(Pt)
                 index_used.append(index)
-                i_name = i_name + 1
+            else:
+                print '/!\ Node index already used: ' + query_name + " - " + name + " - " + ele
     return Pts
 
 
@@ -181,6 +185,7 @@ def get_overpass_way_feature(Pts, index_used, lat, lon, lim_dist, query_name):
         for tag in way.findall('tag'):
             if tag.attrib['k'] == 'name':
                 name = tag.attrib['v']
+                i_name -= 1
 
         way_id = way.get('id')
         nodes_id = api.WayGet(way_id)
@@ -193,22 +198,23 @@ def get_overpass_way_feature(Pts, index_used, lat, lon, lim_dist, query_name):
         (match, near_lon, near_lat, index) = find_nearest_way(lon, lat, lon2, lat2, lim_dist)
 
         if match == 1:
-
+            i_name = i_name + 1
             [lon_new, lat_new, new_gpx_index] = add_new_point(lon, lat, near_lon, near_lat, index)
-            name = query_name + str(i_name) # set default in case proper tag not found
+            name = query_name + str(i_name) # set by default in case proper tag not found
             ele = '' # set default in case proper tag not found
 
             for tag in way.findall('tag'):
                 if tag.attrib['k'] == 'name':
                     name = tag.attrib['v']
-
+                    i_name -= 1
             # Because only 1 POI is possible per GPS point
             if index not in index_used:
                 print query_name + " - " + name
                 Pt = point(name, lon_new, lat_new, ele, node_id, index, new_gpx_index, query_name)
                 Pts.append(Pt)
                 index_used.append(index)
-                i_name = i_name + 1
+            else:
+                print '/!\ Node index already used: ' + query_name + " - " + name + " - " + ele
     return Pts
 
 
@@ -226,7 +232,7 @@ def find_nearest(lon, lat, lon2, lat2, lim_dist):
     i = dist.index(min(dist))
     if min(dist) < lim_dist:
         match = 1
-        print 'Distance to node: ' + str(min(dist)*1e3) + ' m'
+        print 'Distance to node: ' + '%.2f' % (min(dist)*1e3) + ' m'
     return(match, lon[i], lat[i], i)
 
 
@@ -250,7 +256,7 @@ def find_nearest_way(lon, lat, lon2, lat2, lim_dist):
     if min(dist2) < lim_dist:
         match = 1
         i = i2[dist2.index(min(dist2))]
-        print 'Distance to node: ' + str(min(dist)*1e3) + ' m'
+        print 'Distance to way: ' + '%.2f' % (min(dist2)*1e3) + ' m'
 
     return(match, lon[i], lat[i], i)
 
@@ -383,6 +389,25 @@ def build_and_save_gpx(gpx_data, Pts, lat, lon, ele, index_used, gpxoutputname, 
     f.close()
 
 
+def shift(l, n):
+    return l[n:] + l[:n]
+
+def change_route(lat, lon, ele, reverse=False, index=None):
+    if reverse is True:
+        lat = lat[::-1]
+        lon = lon[::-1]
+        ele = ele[::-1]
+
+    if index is not None:
+        if index > len(lat):
+            print 'index number too long'
+        else:
+            lat = shift(lat, index)
+            lon = shift(lon, index)
+            ele = shift(ele, index)
+
+    return lat, lon, ele
+
 def osm_wpt(fpath, plot_gpx=False, lim_dist=0.05, keep_old_wpt=False, gpxoutputname='out.gpx'):
     '''
     plot_gpx to plot the route (False #default)
@@ -392,13 +417,16 @@ def osm_wpt(fpath, plot_gpx=False, lim_dist=0.05, keep_old_wpt=False, gpxoutputn
 
     gpx_file = open(fpath, 'r')
     gpx = gpxpy.parse(gpx_file)
-    (gpx_name, lat, lon, ele) = parse_route(gpx, reverse=False)
+    (gpx_name, lat, lon, ele) = parse_route(gpx)
     gpx_file.close()
-    print gpx_name + ' parsed'
+
+    # Change start point manually
+    lat, lon, ele = change_route(lat, lon, ele, reverse=False, index=None)
 
     index_used = []
     Pts = []
 
+    # Nodes
     query = 'node["natural" = "saddle"]'
     overpass_query(lon, lat, query)
     Pts = get_overpass_feature(Pts, index_used, lat, lon, lim_dist, 'saddle')
@@ -431,6 +459,11 @@ def osm_wpt(fpath, plot_gpx=False, lim_dist=0.05, keep_old_wpt=False, gpxoutputn
     overpass_query(lon, lat, query)
     Pts = get_overpass_feature(Pts, index_used, lat, lon, lim_dist, 'hut')
 
+    query = 'node["natural"="tree"]["name"]'
+    overpass_query(lon, lat, query)
+    Pts = get_overpass_feature(Pts, index_used, lat, lon, lim_dist, 'tree')
+
+    # Ways
     query = 'way["tourism"="alpine_hut"]'
     overpass_query(lon, lat, query)
     Pts = get_overpass_way_feature(Pts, index_used, lat, lon, lim_dist, 'hut')
@@ -445,14 +478,16 @@ def osm_wpt(fpath, plot_gpx=False, lim_dist=0.05, keep_old_wpt=False, gpxoutputn
 
     print 'Number of gpx points in route : ' + str(len(lat))
     print str(len(index_used)) + ' Waypoint(s)'
+
     build_and_save_gpx(gpx, Pts, lat, lon, ele, index_used, gpxoutputname, keep_old_wpt)
 
     if plot_gpx is True:
-        plot_gpx_route(lon, lat, gpx_name)   # Plot route
-        plot_gpx_wpt(gpx)                  # Plot waypoints from the input gpx
-        plot_overpass_feature()
+        plot_gpx_route(lon, lat, gpx_name)  # Plot route
+        plot_gpx_wpt(gpx, keep_old_wpt)     # Plot waypoints from the input gpx
+        plt.plot(lon[0], lat[0], 'wo')      # Plot start
+        plot_overpass_feature()             # Plot waypoints from last overpass query
         for Pt in Pts:
-            plt.plot(Pt.lon, Pt.lat, 'bo') # Plot new waypoints
+            plt.plot(Pt.lon, Pt.lat, 'bo')  # Plot new waypoints
         plt.show()
 
 
@@ -465,4 +500,4 @@ if __name__ == "__main__":
     else:
         fpath = u'test.gpx'
 
-    osm_wpt(fpath, plot_gpx=0, gpxoutputname=fpath_out)
+    osm_wpt(fpath, plot_gpx=False, gpxoutputname=fpath_out)
