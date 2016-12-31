@@ -28,7 +28,7 @@ pip install osmapi
 ### Usage
 
 ```bash
-osm_wpt_on_gpx.py inputfile.gpx outputfile.gpx
+python osm_wpt_on_gpx.py inputfile.gpx outputfile.gpx
 ```
 
 ### Tips for use with Suunto / Garmin
